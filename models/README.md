@@ -78,6 +78,10 @@ Each  file contains a list of with the following object:
 
 ##### Code snippet to run predictions
 
+`Validation script.ipynb` contains the full code to run predictions and evaluate the 8 classifiers. 
+
+The following snippet describes the main line to run predictions. 
+
 `test_df` is a pandas dataframe where each row contains an assessment logged by a participant with all the features and outcomes described above. 
 
 ```python
