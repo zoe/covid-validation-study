@@ -61,7 +61,7 @@ The 4 classifiers were created choosing their thresholds as follows:
 #### Files
 
 Binary Files storing the models
-- Classifiers for the first 42 hours: `Grouped_RF_2_12_05.joblib`
+- Classifiers for the first 48 hours: `Grouped_RF_2_12_05.joblib`
 - Classifiers for the first 72 hours: `Grouped_RF_3_12_05.joblib`
 
 Each  file contains a list of with the following object:
