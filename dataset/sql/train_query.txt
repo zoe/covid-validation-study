@@ -1,0 +1,8 @@
+select
+    date_sick,
+    result,
+    count(distinct patient_id)
+from `intermediate_data.newly_sick_with_test_results`
+where result in ('positive', 'negative')
+AND date_sick BETWEEN "{start_date}" AND "{end_date}"
+group by date_sick, result

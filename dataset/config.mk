@@ -1,0 +1,20 @@
+# dataset pipeline generation parameters
+# options are train and test
+DATASET=train
+
+# training/validation set start date
+START_DATE=2020-04-01
+# training/validation set end date and test set start date
+SPLIT_DATE=2020-11-01
+# test set end date
+TEST_END_DATE=2020-11-25
+
+VALIDATION_FRACTION=0.2
+DATA_FOLDER_LOCAL=data
+DATA_FOLDER_GCP=covid-internal-data/covid-validation-study
+
+# other things we might want to define here
+# - what you want to call the file
+# - if it's training (training + validation) or test
+# - if you want to aggregate on episode ID or not
+# - (if you want to add nhs-region level prevalence data)
