@@ -8,7 +8,10 @@ START_DATE=2020-04-01
 SPLIT_DATE=2020-11-01
 # test set end date
 TEST_END_DATE=2020-11-25
-
+# number days from the onset of symptoms
+DAYS_ONSET=3
+#max number of days between falling sick and test
+DAYS_SICK_TEST=10
 VALIDATION_FRACTION=0.2
 DATA_FOLDER_LOCAL=data
 DATA_FOLDER_GCP=covid-internal-data/covid-validation-study
