@@ -12,7 +12,7 @@ ${RAW_FILENAME}_done: ${CONFIG}
 	@echo "Querying for training data between ${START_DATE} and ${SPLIT_DATE}"
 	@mkdir -p ${DATA_FOLDER_LOCAL}
 	python -m scripts.query \
-	-start_date ${START_DATE} -end_date ${SPLIT_DATE} -query_file sql/${DATASET}_query.txt -outfile ${RAW_FILENAME}.csv
+	-start_date ${START_DATE} -end_date ${SPLIT_DATE} -days_from_onset ${DAYS_ONSET} -days_between_sick_test ${DAYS_SICK_TEST} -query_file sql/${DATASET}_query.txt -outfile ${RAW_FILENAME}.csv -set_type $(DATASET)
 	@touch ${RAW_FILENAME}_done
 	@echo "Created ${RAW_FILENAME}.csv"
 
@@ -32,14 +32,17 @@ ${PROCESSED_FILENAME}_done: ${RAW_FILENAME}_done
 # 2. Train validation split
 
 # these are not used yet
-TRAIN_FILENAME = ${DATA_FOLDER_LOCAL}/${DATASET}_${START_DATE}_${SPLIT_DATE}_train.csv
-TEST_FILENAME = ${DATA_FOLDER_LOCAL}/${DATASET}_${START_DATE}_${SPLIT_DATE}_test.csv
+TRAIN_FILENAME = ${DATA_FOLDER_LOCAL}/split_train.csv
+VAL_FILENAME = ${DATA_FOLDER_LOCAL}/split_validation.csv
 
 train_split: train_split_done
 
 train_split_done: ${PROCESSED_FILENAME}_done
-	@echo doing the split
+
+	python -m scripts.make_split \
+	-processed_data ${PROCESSED_FILENAME}.csv -fraction_validation ${VALIDATION_FRACTION} -output_train ${TRAIN_FILENAME} -output_val ${VAL_FILENAME}   
 	@touch train_split_done
+	@echo "Split made! Training and validation created."
 
 # 3. General preprocessing with the option to aggregate on episode-id level - OPTIONAL, we can do it later
 
