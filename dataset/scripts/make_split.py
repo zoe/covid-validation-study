@@ -3,6 +3,7 @@ import numpy as np
 import argparse
 import warnings
 
+warnings.filterwarnings('ignore')
 
 #function to split the data
 def make_split(pre_processed, fraction_validation):
@@ -62,7 +63,7 @@ def make_split(pre_processed, fraction_validation):
     return train_set, val_set
 
 if __name__ == '__main__':
-    warnings.filterwarnings('ignore')
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-processed_data", help="This is the pre-processed data", type=str)
     parser.add_argument("-fraction_validation", help="This is the fraction of data to insert in validation", type=float)
@@ -74,7 +75,7 @@ if __name__ == '__main__':
     #make the split
     train_set, val_set = make_split(processed_data, args.fraction_validation)
     #save the split data
-    train_set.to_csv(args.output_train, index = False)
-    val_set.to_csv(args.output_val, index = False)
+    train_set.to_csv(args.output_train+'.csv', index=False)
+    val_set.to_csv(args.output_val+'.csv', index=False)
     
 
