@@ -4,6 +4,7 @@ import warnings
 import google.auth
 import gcsfs
 import os
+import gzip
 
 warnings.filterwarnings('ignore')
 gcp_project_name = os.getenv('GOOGLE_CLOUD_PROJECT')
@@ -20,8 +21,10 @@ if __name__ == '__main__':
     parser.add_argument("-val", help="Validation filename", type=str)
     parser.add_argument("-test", help="Test filename", type=str)
     parser.add_argument("-gcp_folder", help="GCP location", type=str)
-    parser.add_argument("-split_date", help="Date when training set ends and test starts", type=str)
+    parser.add_argument("-gen_date", help="Date when training set ends and test starts", type=str)
     args = parser.parse_args()
+
+    file_counter=0
 
     for fname in [args.test, args.train, args.val]:
 
@@ -29,9 +32,15 @@ if __name__ == '__main__':
             print(f'Found {fname}')
             data = pd.read_csv(fname)
             short_filename = os.path.basename(fname)
-            remote_path = os.path.join(args.gcp_folder,args.split_date,short_filename)
-            print(remote_path)
-            with gcp_fs.open(remote_path, 'w') as file_obj:
-                data.to_csv(file_obj, index=False)
+            remote_path = os.path.join(args.gcp_folder,args.gen_date,short_filename)
+            with gcp_fs.open(remote_path+'.gz', 'w') as file_obj:
+                data.to_csv(file_obj, index=False, compression='gzip')
             print(f'{remote_path} written to GCP')
+
+            file_counter+=1
+
+    if file_counter > 0:
+        remote_path=os.path.join(args.gcp_folder,args.gen_date,f'config_{args.gen_date}.mk')
+        gcp_fs.put('config.mk', remote_path)
+        print(f'{remote_path} written to GCP')
 

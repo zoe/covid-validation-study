@@ -4,22 +4,35 @@ include ${CONFIG}
 # 1. Fetch data
 ## 1a Query
 
-RAW_FILENAME = ${DATA_FOLDER_LOCAL}/raw_${DATASET}_${START_DATE}_${SPLIT_DATE}
+ifeq ($(DATASET),train)
+	RAW_FILENAME = ${DATA_FOLDER_LOCAL}/raw_${DATASET}_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
+else
+	RAW_FILENAME = ${DATA_FOLDER_LOCAL}/raw_${DATASET}_${SPLIT_DATE}_gen${GENERATION_DATE}
+endif
 
+ifeq ($(DATASET),train)
+	PROCESSED_FILENAME = ${DATA_FOLDER_LOCAL}/processed_${DATASET}_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
+else
+	PROCESSED_FILENAME = ${DATA_FOLDER_LOCAL}/processed_${DATASET}_${SPLIT_DATE}_gen${GENERATION_DATE}
+endif
+
+.PHONY: query
 query: query_done
 
 query_done: ${CONFIG}
 	@echo "Querying for training data between ${START_DATE} and ${SPLIT_DATE}"
 	@mkdir -p ${DATA_FOLDER_LOCAL}
 	python -m scripts.query \
-	-start_date ${START_DATE} -end_date ${SPLIT_DATE} -days_from_onset ${DAYS_ONSET} -days_between_sick_test ${DAYS_SICK_TEST} -query_file sql/${DATASET}_query.txt -outfile ${RAW_FILENAME}.csv -set_type $(DATASET)
+	-start_date ${START_DATE} -end_date ${SPLIT_DATE} \
+	-days_from_onset ${DAYS_ONSET} \
+	-days_between_sick_test ${DAYS_SICK_TEST} -query_file sql/${DATASET}_query.txt \
+	-outfile ${RAW_FILENAME}.csv -set_type ${DATASET}
 	@touch query_done
 	@echo "Created ${RAW_FILENAME}.csv"
 
 ## 1b Clean query output
 
-PROCESSED_FILENAME = ${DATA_FOLDER_LOCAL}/processed_${DATASET}_${START_DATE}_${SPLIT_DATE}
-
+.PHONY: clean_data
 clean_data: cleaning_done
 
 cleaning_done: query_done
@@ -31,10 +44,10 @@ cleaning_done: query_done
 
 # 2. Train validation split
 
-# these are not used yet
-TRAIN_FILENAME = ${DATA_FOLDER_LOCAL}/split_train_${START_DATE}_${SPLIT_DATE}_gen$(shell date +%m%d)
-VAL_FILENAME = ${DATA_FOLDER_LOCAL}/split_validation_${START_DATE}_${SPLIT_DATE}_gen$(shell date +%m%d)
+TRAIN_FILENAME = ${DATA_FOLDER_LOCAL}/split_train_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
+VAL_FILENAME = ${DATA_FOLDER_LOCAL}/split_validation_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
 
+.PHONY: train_split
 train_split: train_split_done
 
 train_split_done: cleaning_done
@@ -48,16 +61,20 @@ train_split_done: cleaning_done
 
 # 4. Saving datasets to GCP with proper naming
 
+.PHONY: GCP_save
 GCP_save: GCP_save_done
 
-GCP_save_done: cleaning_done
+GCP_save_done:
 	@echo saving to GCP
 	python -m scripts.upload_to_gcp \
 	-train ${TRAIN_FILENAME}.csv -val ${VAL_FILENAME}.csv -test ${PROCESSED_FILENAME}.csv \
-	-gcp_folder ${DATA_FOLDER_GCP} -split_date ${SPLIT_DATE}
+	-gcp_folder ${DATA_FOLDER_GCP} -gen_date ${GENERATION_DATE}
 	@touch GCP_save_done
 
 # Whole train and test pipeline
 
+.PHONY: train_data
 train_data: query clean_data train_split
+
+.PHONY: test_data
 test_data: query clean_data
