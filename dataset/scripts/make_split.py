@@ -18,8 +18,8 @@ def make_split(pre_processed, fraction_validation):
         data = pre_processed[pre_processed.day_updated_at == day]
         #shuffle the data
         shuffled = data.sample(frac = 1)
-        ids = shuffled.patient_id.unique()
-        size_val = int(shuffled.patient_id.nunique() * fraction_validation)
+        ids = shuffled.episode_id.unique()
+        size_val = int(shuffled.episode_id.nunique() * fraction_validation)
         train_ids = ids[size_val:]
         val_ids = ids[:size_val]
         #check intersections
@@ -55,8 +55,8 @@ def make_split(pre_processed, fraction_validation):
         frac_val = int(len(remaining) * fraction_validation)
         ids_rem_train = list(remaining)[frac_val:]
         ids_rem_val = list(remaining)[:frac_val]
-        train_set = pd.concat([train_set, shuffled[shuffled.patient_id.isin(ids_rem_train)]])
-        val_set = pd.concat([val_set, shuffled[shuffled.patient_id.isin(ids_rem_val)]])
+        train_set = pd.concat([train_set, shuffled[shuffled.episode_id.isin(ids_rem_train)]])
+        val_set = pd.concat([val_set, shuffled[shuffled.episode_id.isin(ids_rem_val)]])
         ids_for_train = ids_for_train.union(ids_rem_train)
         ids_for_val = ids_for_val.union(ids_rem_val)
     return train_set, val_set
