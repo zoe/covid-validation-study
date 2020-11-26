@@ -60,7 +60,7 @@
         ON pat.id = inv.patient_id
         AND inv.healthy = False
         INNER JOIN (
-        select distinct(nhs.lad16cd), nhs.nhser19nm, nhs.country from additional_tables.lsoa11cd_nhs_lookup as nhs) as tmp
+        select distinct(nhs.lad16cd), nhs.nhser19nm, nhs.country from additional_tables.lsoa11cd_nhs_lookup as nhs where nhs.nhser19nm is not null) as tmp
         ON pat.ladcd = tmp.lad16cd
         INNER JOIN `zoe-covid19.kcl_anon_data.assessment` AS ass
         ON ass.patient_id = pat.id

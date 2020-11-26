@@ -1,6 +1,9 @@
 import pandas as pd
 import argparse
 import warnings
+from datetime import datetime
+import gcsfs
+import os
 
 def clean_data(data):
     #create the episode ID
@@ -30,8 +33,40 @@ def clean_data(data):
     data['prisma'] = (data.age>85).astype(int) + (data.gender==1).astype(int) + (data.needs_help==True).astype(int) +  (data.housebound_problems==True).astype(int) +  (data.help_available==True).astype(int) +  (data.mobility_aid==True).astype(int) 
     #map the target to boolean values 
     data['result'] = data.result.map({'negative':False,'positive':True})
+#use the country as NHS region for these ones 
+    data.loc[data.country.isin(['Scotland', 'Wales', 'Northern Ireland']), 'nhser19nm'] = data.loc[data.country.isin(['Scotland', 'Wales', 'Northern Ireland']), 'country']
+    #get the prevalence data fro the NHS regions
+    nhs_region_data = get_data_nhs_region(datetime.today())
+    # left join with region and date
+    data = pd.merge(data, nhs_region_data,  how='left', left_on=['nhser19nm','day_updated_at'], right_on = ['nhser19nm','day_updated_at'])
+    #add the prevalence ratio feature 
+    data['prevalence_ratio'] = data['corrected_covid_positive'] / data['population']
     return data
 
+#get the data for the NHS region
+def get_data_nhs_region(date_today):
+    'get the prevalence data for the LADs within a specific window'
+    #get most recent uploaded map
+    fs = gcsfs.GCSFileSystem()
+    final = date_today
+    month = "0" + str(final.month) if final.month < 10 else str(final.month)
+    day = final.day
+    year = final.year
+    start_date = datetime(2020, 6 , 12)
+    end_date = datetime.strptime(f"{year}{month}{day}", "%Y%m%d")
+    #declare the different maps
+    maps = []
+    end_date_str = datetime.strftime(end_date, '%Y%m%d')
+    for day in pd.date_range(start_date, end_date, freq = "24H"):
+        #get the right format 
+        date_file = str(day).split(" ")[0].replace("-","")
+        with fs.open(os.path.join(f'covid-internal-data/covid-predictions/extrapolations/prevalence_history_{end_date_str}/corrected_prevalence_{date_file}.csv')) as fileptr:
+            #read the file
+            file_prev = pd.read_csv(fileptr).groupby('nhser19nm')['respondent_count', 'predicted_covid_positive_count', 'population', 'corrected_covid_positive'].sum().reset_index()
+            #create the date 
+            file_prev['day_updated_at'] = str(day).split(" ")[0]
+            maps.append(file_prev)
+    return pd.concat(maps)
 
 if __name__ == '__main__':
 
@@ -43,5 +78,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     #pass the raw file to clean
     df = pd.read_csv(args.inputfile)
-    #save the cleaned file 
-    clean_data(df).to_csv(args.outfile, index=False)
+    #clean the data 
+    cleaned_data = clean_data(df)
+    #save the file to CSV
+    cleaned_data.to_csv(args.outfile, index=False)

@@ -1,11 +1,11 @@
 # dataset pipeline generation parameters
 # options are train and test
-DATASET=train
+DATASET=test
 
 # training/validation set start date
 START_DATE=2020-04-01
 # training/validation set end date and test set start date
-SPLIT_DATE=2020-11-16
+SPLIT_DATE=2020-10-15
 # test set end date
 TEST_END_DATE=2020-11-25
 # number days from the onset of symptoms
