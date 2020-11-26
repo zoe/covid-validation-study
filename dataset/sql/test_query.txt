@@ -80,7 +80,7 @@ SELECT
         LOWER(test.mechanism) NOT LIKE '%antibody%' AND 
         LOWER(test.mechanism) NOT LIKE '%antibod%' AND 
         test.result IN ('positive', 'negative') AND
-	inv.date_sick >= CAST("{start_date}" AS DATE)
+	inv.date_sick > CAST("{start_date}" AS DATE)
         WHERE inv_users.official
     ORDER BY 
         ass.patient_id, ass.updated_at
