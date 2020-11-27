@@ -9,7 +9,6 @@ FREEZE_DATE=2020-12-01
 START_DATE=2020-04-01
 # training/validation set end date and test set start date
 SPLIT_DATE=2020-10-15
-# test set end dates
 #TEST_END_DATE=2020-11-25
 # number days from the onset of symptoms
 DAYS_ONSET=3
