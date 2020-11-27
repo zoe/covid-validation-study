@@ -68,7 +68,8 @@ GCP_save_done:
 	@echo saving to GCP
 	python -m scripts.upload_to_gcp \
 	-train ${TRAIN_FILENAME}.csv -val ${VAL_FILENAME}.csv -test ${PROCESSED_FILENAME}.csv \
-	-gcp_folder ${DATA_FOLDER_GCP} -gen_date ${GENERATION_DATE}
+	-dataset ${DATASET} \
+	-gcp_folder ${DATA_FOLDER_GCP} -gen_date ${GENERATION_DATE} -freeze_date ${FREEZE_DATE}
 	@touch GCP_save_done
 
 # Whole train and test pipeline
