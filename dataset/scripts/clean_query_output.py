@@ -2,6 +2,8 @@ import pandas as pd
 import argparse
 import warnings
 
+warnings.filterwarnings('ignore')
+
 def clean_data(data):
     #create the episode ID
     data['episode_id'] = data.patient_id + data['date_sick']
@@ -34,8 +36,6 @@ def clean_data(data):
 
 
 if __name__ == '__main__':
-
-    warnings.filterwarnings('ignore')
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-inputfile", help="Raw file to clean", type=str)
