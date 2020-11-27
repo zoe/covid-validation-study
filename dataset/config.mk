@@ -1,6 +1,6 @@
 # dataset pipeline generation parameters
 # options are train and test
-DATASET=test
+DATASET=train
 
 # training/validation set start date
 START_DATE=2020-04-01

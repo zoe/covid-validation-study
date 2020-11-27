@@ -1,7 +1,7 @@
 import pandas as pd
 import argparse
 import warnings
-from datetime import datetime
+from datetime import datetime, timedelta
 import gcsfs
 import os
 
@@ -41,6 +41,8 @@ def clean_data(data):
     data = pd.merge(data, nhs_region_data,  how='left', left_on=['nhser19nm','day_updated_at'], right_on = ['nhser19nm','day_updated_at'])
     #add the prevalence ratio feature 
     data['prevalence_ratio'] = data['corrected_covid_positive'] / data['population']
+    #add the study_day field 
+    data['study_day'] = (pd.to_datetime(data.day_updated_at) - (pd.to_datetime(data.date_sick))).dt.days
     return data
 
 #get the data for the NHS region
@@ -67,6 +69,7 @@ def get_data_nhs_region(date_today):
             file_prev['day_updated_at'] = str(day).split(" ")[0]
             maps.append(file_prev)
     return pd.concat(maps)
+
 
 if __name__ == '__main__':
 
