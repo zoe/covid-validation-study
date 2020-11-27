@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import gcsfs
 import os
 
+warnings.filterwarnings('ignore')
+
 def clean_data(data):
     #create the episode ID
     data['episode_id'] = data.patient_id + data['date_sick']
@@ -72,8 +74,6 @@ def get_data_nhs_region(date_today):
 
 
 if __name__ == '__main__':
-
-    warnings.filterwarnings('ignore')
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-inputfile", help="Raw file to clean", type=str)

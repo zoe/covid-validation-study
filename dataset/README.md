@@ -1,25 +1,27 @@
 # Validation study dataset generation pipeline
 
-## Intro to makefiles + folder structure
-
-For now, this folder contains some example scripts, a Makefile and a config file to demonstrate how Makefiles work. You can try them by running 
-
-```
-cd covid-validation-study/dataset
-make query
-make clean data
-```
+## About Makefiles
 
 A nice [tutorial](https://makefiletutorial.com/) on makefiles. We only need really basic stuff but this is a good point of reference.
 
+## Generate data
+
+Note: if you need to rerun some part of the pipeline, you need to remove the files generates that are ending `done`.
+
 ### Training set
 
+In `config.mk`, set `DATASET=train`.
 ```
 make train_data
+
+make gcp_save #(optional)
 ```
 
 ### Test set
 
+In `config.mk`, set `DATASET=test`.
 ```
 make test_data
+
+make gcp_save #(optional)
 ```
