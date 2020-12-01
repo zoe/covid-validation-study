@@ -1,14 +1,14 @@
 # dataset pipeline generation parameters
 # options are train and test
-DATASET=train
+DATASET=test
 GENERATION_DATE=1130
 # this is the day when the model is intended to be frozen
-FREEZE_DATE=2020-12-01
+FREEZE_DATE=2020-10-15
 
 # training/validation set start date
 START_DATE=2020-04-01
 # training/validation set end date and test set start date
-SPLIT_DATE=2020-11-30
+SPLIT_DATE=2020-10-15
 #TEST_END_DATE=2020-11-25
 # number days from the onset of symptoms
 DAYS_ONSET=3

@@ -38,7 +38,7 @@ clean_data: cleaning_done
 cleaning_done: query_done
 	@echo "Cleaning ${RAW_FILENAME}.csv"
 	python -m scripts.clean_query_output \
-	-inputfile ${RAW_FILENAME}.csv -outfile ${PROCESSED_FILENAME}.csv
+	-inputfile ${RAW_FILENAME}.csv -set_type ${DATASET} -aggregate ${AGGREGATE} -outfile ${PROCESSED_FILENAME}.csv
 	@touch cleaning_done
 	@echo "Created ${PROCESSED_FILENAME}.csv"
 

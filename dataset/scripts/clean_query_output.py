@@ -7,7 +7,7 @@ import os
 
 warnings.filterwarnings('ignore')
 
-def clean_data(data):
+def clean_data(data, aggregate, set_type):
     #create the episode ID
     data['episode_id'] = data.patient_id + data['date_sick']
     #ensure that each episode has the test closest to the onset of symptoms
@@ -45,6 +45,9 @@ def clean_data(data):
     data['prevalence_ratio'] = data['corrected_covid_positive'] / data['population']
     #add the study_day field 
     data['study_day'] = (pd.to_datetime(data.day_updated_at) - (pd.to_datetime(data.date_sick))).dt.days
+    if (set_type == 'test') & (aggregate == True): 
+        data = pd.concat([data.groupby(['episode_id']).agg(lambda x: x.sum()/ x.shape[0]),
+                          data.groupby(['episode_id'])['result'].mean()], axis=1).reset_index(drop=True)
     return data
 
 #get the data for the NHS region
@@ -77,11 +80,13 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-inputfile", help="Raw file to clean", type=str)
+    parser.add_argument("-set_type", help="Check the type of dataset", type=str)
+    parser.add_argument("-aggregate", help="Check the type of dataset", type=bool)
     parser.add_argument("-outfile", help="Outputfile", type=str)
     args = parser.parse_args()
     #pass the raw file to clean
     df = pd.read_csv(args.inputfile)
     #clean the data 
-    cleaned_data = clean_data(df)
+    cleaned_data = clean_data(df, aggregate = args.aggregate, set_type = args.set_type)
     #save the file to CSV
     cleaned_data.to_csv(args.outfile, index=False)
