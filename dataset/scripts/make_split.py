@@ -62,11 +62,17 @@ def make_split(pre_processed, fraction_validation):
         ids_for_val = ids_for_val.union(ids_rem_val)
     return train_set, val_set
 
+def aggregate_features(df): 
+    return pd.concat([df.groupby(['episode_id']).agg(lambda x: x.sum()/ x.shape[0]), 
+                      df.groupby(['episode_id'])['result'].mean()], axis=1).reset_index(drop=True)
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-processed_data", help="This is the pre-processed data", type=str)
     parser.add_argument("-fraction_validation", help="This is the fraction of data to insert in validation", type=float)
+    parser.add_argument("-aggregate", help="Decide whether you want to aggregate features", type=bool)
     parser.add_argument("-output_train", help="This is the path where we save the train data", type=str)
     parser.add_argument("-output_val", help="This is the path where we save the validation data", type=str)
     args = parser.parse_args()
@@ -75,6 +81,9 @@ if __name__ == '__main__':
     #make the split
     train_set, val_set = make_split(processed_data, args.fraction_validation)
     #save the split data
+    if args.aggregate:
+        train_set = aggregate_features(train_set) 
+        val_set = aggregate_features(val_set)
     train_set.to_csv(args.output_train+'.csv', index=False)
     val_set.to_csv(args.output_val+'.csv', index=False)
     

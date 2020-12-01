@@ -52,7 +52,7 @@ train_split: train_split_done
 
 train_split_done: cleaning_done
 	python -m scripts.make_split \
-	-processed_data ${PROCESSED_FILENAME}.csv -fraction_validation ${VALIDATION_FRACTION} -output_train ${TRAIN_FILENAME} -output_val ${VAL_FILENAME}
+	-processed_data ${PROCESSED_FILENAME}.csv -fraction_validation ${VALIDATION_FRACTION} -aggregate ${AGGREGATE} -output_train ${TRAIN_FILENAME} -output_val ${VAL_FILENAME}
 	@touch train_split_done
 	@echo "Split made! Training and validation created."
 

@@ -17,7 +17,7 @@ DAYS_SICK_TEST=10
 VALIDATION_FRACTION=0.2
 DATA_FOLDER_LOCAL=data
 DATA_FOLDER_GCP=covid-internal-data/covid-validation-study
-
+AGGREGATE = True
 # other things we might want to define here
 # - what you want to call the file
 # - if it's training (training + validation) or test
