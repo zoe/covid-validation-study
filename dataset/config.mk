@@ -1,7 +1,7 @@
 # dataset pipeline generation parameters
 # options are train and test
-DATASET=train
-GENERATION_DATE=1201
+DATASET=test
+GENERATION_DATE=1204
 # this is the day when the model is intended to be frozen
 FREEZE_DATE=2020-10-15
 
