@@ -37,9 +37,9 @@
 	pat.race_is_us_white,
 	pat.race_is_prefer_not_to_say,
         ass.patient_id,
-        ass.updated_at,
         CAST(ass.updated_at AS DATE) AS day_updated_at,
-        ass.persistent_cough,
+        ass.updated_at AS updated_at,
+	ass.persistent_cough,
         ass.fatigue,
         ass.delirium,
         ass.shortness_of_breath,
@@ -60,7 +60,8 @@
         ass.unusual_muscle_pains, 
         ass.typical_hayfever,
         ass.sore_throat,
-        inv.date_sick,
+	ass.health_status,
+	inv.date_sick,
         test.id AS test_id,
         test.date_taken_specific,
         test.date_taken_between_start,
@@ -79,8 +80,8 @@
         INNER JOIN `zoe-covid19.kcl_anon_data.assessment` AS ass
         ON ass.patient_id = pat.id
         AND date_sick BETWEEN CAST("{start_date}" AS DATE) AND CAST("{end_date}" AS DATE)
-        AND CAST(ass.created_at AS DATE) >= inv.date_sick 
-        AND CAST(ass.created_at AS DATE) < DATE_ADD(inv.date_sick, INTERVAL {days_from_onset} DAY)
+        AND CAST(ass.updated_at AS DATE) >= inv.date_sick 
+        AND CAST(ass.updated_at AS DATE) < DATE_ADD(inv.date_sick, INTERVAL {days_from_onset} DAY)
         INNER JOIN kcl_anon_data.covid_test AS test
         ON test.patient_id = ass.patient_id  AND
         (test.date_taken_specific >= inv.date_sick OR 

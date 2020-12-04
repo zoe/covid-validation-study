@@ -6,14 +6,18 @@ include ${CONFIG}
 
 ifeq ($(DATASET),train)
 	RAW_FILENAME = ${DATA_FOLDER_LOCAL}/raw_${DATASET}_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
+	PROCESSED_FILENAME = ${DATA_FOLDER_LOCAL}/processed_${DATASET}_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
+	TRAIN_FILENAME = ${DATA_FOLDER_LOCAL}/split_train_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
+	VAL_FILENAME = ${DATA_FOLDER_LOCAL}/split_validation_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
+	TRAIN_AGGREGATED = ${TRAIN_FILENAME}_aggregated
+	VAL_AGGREGATED = ${VAL_FILENAME}_aggregated
+	FILE_DEP = train_split_done
+
 else
 	RAW_FILENAME = ${DATA_FOLDER_LOCAL}/raw_${DATASET}_${SPLIT_DATE}_gen${GENERATION_DATE}
-endif
-
-ifeq ($(DATASET),train)
-	PROCESSED_FILENAME = ${DATA_FOLDER_LOCAL}/processed_${DATASET}_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
-else
 	PROCESSED_FILENAME = ${DATA_FOLDER_LOCAL}/processed_${DATASET}_${SPLIT_DATE}_gen${GENERATION_DATE}
+	TEST_AGGREGATED = ${PROCESSED_FILENAME}_aggregated
+	FILE_DEP = cleaning_done
 endif
 
 .PHONY: query
@@ -44,9 +48,6 @@ cleaning_done: query_done
 
 # 2. Train validation split
 
-TRAIN_FILENAME = ${DATA_FOLDER_LOCAL}/split_train_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
-VAL_FILENAME = ${DATA_FOLDER_LOCAL}/split_validation_${START_DATE}_${SPLIT_DATE}_gen${GENERATION_DATE}
-
 .PHONY: train_split
 train_split: train_split_done
 
@@ -58,6 +59,16 @@ train_split_done: cleaning_done
 
 # 3. General preprocessing with the option to aggregate on episode-id level
 # OPTIONAL, we can do it later
+.PHONY: aggregate
+aggregate: aggregate_done
+
+aggregate_done: ${FILE_DEP}
+	if [ "${FILE_DEP}" = "train_split_done" ]; then \
+		python -m scripts.aggregate -processed_data ${TRAIN_FILENAME}.csv -output ${TRAIN_AGGREGATED}; \
+		python -m scripts.aggregate -processed_data ${VAL_FILENAME}.csv -output ${VAL_AGGREGATED}; \
+	else \
+		python -m scripts.aggregate -processed_data ${PROCESSED_FILENAME}.csv -output ${TEST_AGGREGATED}; fi; \
+	touch aggregate_done
 
 # 4. Saving datasets to GCP with proper naming
 
@@ -67,9 +78,9 @@ GCP_save: GCP_save_done
 GCP_save_done:
 	@echo saving to GCP
 	python -m scripts.upload_to_gcp \
-	-train ${TRAIN_FILENAME}.csv -val ${VAL_FILENAME}.csv -test ${PROCESSED_FILENAME}.csv \
-	-dataset ${DATASET} \
-	-gcp_folder ${DATA_FOLDER_GCP} -gen_date ${GENERATION_DATE} -freeze_date ${FREEZE_DATE}
+	-start_date ${START_DATE} -split_date ${SPLIT_DATE} \
+	-gen_date ${GENERATION_DATE} -freeze_date ${FREEZE_DATE} \
+	-dataset ${DATASET} -gcp_folder ${DATA_FOLDER_GCP}
 	@touch GCP_save_done
 
 # Whole train and test pipeline

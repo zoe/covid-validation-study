@@ -1,9 +1,9 @@
 # dataset pipeline generation parameters
 # options are train and test
-DATASET=train
-GENERATION_DATE=1125
+DATASET=test
+GENERATION_DATE=1204
 # this is the day when the model is intended to be frozen
-FREEZE_DATE=2020-12-01
+FREEZE_DATE=2020-10-15
 
 # training/validation set start date
 START_DATE=2020-04-01
@@ -17,7 +17,6 @@ DAYS_SICK_TEST=10
 VALIDATION_FRACTION=0.2
 DATA_FOLDER_LOCAL=data
 DATA_FOLDER_GCP=covid-internal-data/covid-validation-study
-
 # other things we might want to define here
 # - what you want to call the file
 # - if it's training (training + validation) or test
